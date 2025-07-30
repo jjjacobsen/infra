@@ -25,6 +25,7 @@ services:
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
       - "traefik.http.routers.dashboard.middlewares=dashboard-rate-limit,dashboard-auth"
+      - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_ADMIN_USER}:${TRAEFIK_ADMIN_PASSWORD}"
       - "traefik.http.middlewares.dashboard-rate-limit.ratelimit.average=10"
       - "traefik.http.middlewares.dashboard-rate-limit.ratelimit.period=1m"
