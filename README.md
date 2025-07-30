@@ -134,7 +134,10 @@ docker stats
 
 ### 🔄 Updates & Maintenance
 ```bash
-# 🆙 Pull latest images and restart
+# 🆙 Quick update with script
+./update.sh
+
+# 🆙 Or manually pull latest images and restart
 docker compose pull
 docker compose --env-file .env up -d
 
