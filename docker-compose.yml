@@ -36,11 +36,11 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.website.rule=Host(`jonahjacobsen.com`, `www.jonahjacobsen.com`)"
+      - "traefik.http.routers.website.rule=Host(`jonahjacobsen.com`) || Host(`www.jonahjacobsen.com`)"
       - "traefik.http.routers.website.entrypoints=web,websecure"
       - "traefik.http.routers.website.tls.certresolver=letsencrypt"
       - "traefik.http.services.website.loadbalancer.server.port=80"
-      - "traefik.http.routers.website-redirect.rule=Host(`jonahjacobsen.com`, `www.jonahjacobsen.com`)"
+      - "traefik.http.routers.website-redirect.rule=Host(`jonahjacobsen.com`) || Host(`www.jonahjacobsen.com`)"
       - "traefik.http.routers.website-redirect.entrypoints=web"
       - "traefik.http.routers.website-redirect.middlewares=website-redirect"
       - "traefik.http.middlewares.website-redirect.redirectscheme.scheme=https"
