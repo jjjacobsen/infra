@@ -18,6 +18,13 @@ sudo dnf install -y \
     tar \
     which
 
+# Install AWS CLI
+echo "Installing AWS CLI..."
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+rm -rf awscliv2.zip aws/
+
 # Install Docker
 echo "Installing Docker..."
 sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
@@ -32,11 +39,13 @@ sudo systemctl start docker
 echo "Adding user to docker group..."
 sudo usermod -aG docker $USER
 
-# Verify Docker installation
-echo "Verifying Docker installation..."
+# Verify installations
+echo "Verifying installations..."
 sudo docker --version
 sudo docker compose version
+aws --version
 
 echo "Bootstrap completed successfully!"
 echo "Note: You may need to log out and back in for docker group changes to take effect."
 echo "Test with: docker run hello-world"
+echo "Configure AWS CLI with: aws configure"

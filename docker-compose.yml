@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik-data:/data
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true  # Remove this in production
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.email=your-email@example.com  # Replace with your email
+      - --certificatesresolvers.letsencrypt.acme.storage=/data/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.yourdomain.com`)"  # Replace with your domain
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+
+  website:
+    image: 475365909498.dkr.ecr.us-east-2.amazonaws.com/website:latest
+    container_name: portfolio-website
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.website.rule=Host(`yourdomain.com`, `www.yourdomain.com`)"  # Replace with your domain
+      - "traefik.http.routers.website.entrypoints=web,websecure"
+      - "traefik.http.routers.website.tls.certresolver=letsencrypt"
+      - "traefik.http.services.website.loadbalancer.server.port=80"
+      - "traefik.http.routers.website-redirect.rule=Host(`yourdomain.com`, `www.yourdomain.com`)"
+      - "traefik.http.routers.website-redirect.entrypoints=web"
+      - "traefik.http.routers.website-redirect.middlewares=website-redirect"
+      - "traefik.http.middlewares.website-redirect.redirectscheme.scheme=https"
+
+volumes:
+  traefik-data: 

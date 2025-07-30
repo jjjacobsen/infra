@@ -49,3 +49,40 @@ Host server
    ```bash
    git pull
    ```
+
+### Deploy Portfolio Website with Traefik
+
+1. **Authenticate with ECR (required for private repo):**
+   ```bash
+   aws configure
+   aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 475365909498.dkr.ecr.us-east-2.amazonaws.com
+   ```
+
+2. **For testing (HTTP only):**
+   ```bash
+   docker compose -f docker-compose.simple.yml up -d
+   ```
+   - Website will be available at: `http://your-server-ip`
+   - Traefik dashboard at: `http://your-server-ip:8080`
+
+3. **For production (HTTPS with Let's Encrypt):**
+   - Edit `docker-compose.yml` and replace:
+     - `your-email@example.com` with your email
+     - `yourdomain.com` with your actual domain
+   ```bash
+   docker compose up -d
+   ```
+
+4. **Useful commands:**
+   ```bash
+   # View logs
+   docker compose logs -f
+   
+   # Pull latest image and restart
+   aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 475365909498.dkr.ecr.us-east-2.amazonaws.com
+   docker compose pull
+   docker compose up -d
+   
+   # Stop services
+   docker compose down
+   ```
