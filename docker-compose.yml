@@ -1,32 +1,33 @@
-version: '3.8'
-
 services:
   traefik:
-    image: traefik:v3.0
+    image: traefik:v3.5.0
     container_name: traefik
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"  # Traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik-data:/data
     command:
       - --api.dashboard=true
-      - --api.insecure=true  # Remove this in production
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.letsencrypt.acme.email=your-email@example.com  # Replace with your email
+      - --certificatesresolvers.letsencrypt.acme.email=jjacobsen115@gmail.com
       - --certificatesresolvers.letsencrypt.acme.storage=/data/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.yourdomain.com`)"  # Replace with your domain
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.jonahjacobsen.com`)"
       - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-rate-limit,dashboard-auth"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_ADMIN_USER}:${TRAEFIK_ADMIN_PASSWORD}"
+      - "traefik.http.middlewares.dashboard-rate-limit.ratelimit.average=10"
+      - "traefik.http.middlewares.dashboard-rate-limit.ratelimit.period=1m"
+      - "traefik.http.middlewares.dashboard-rate-limit.ratelimit.burst=20"
 
   website:
     image: 475365909498.dkr.ecr.us-east-2.amazonaws.com/website:latest
@@ -34,11 +35,11 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.website.rule=Host(`yourdomain.com`, `www.yourdomain.com`)"  # Replace with your domain
+      - "traefik.http.routers.website.rule=Host(`jonahjacobsen.com`, `www.jonahjacobsen.com`)"
       - "traefik.http.routers.website.entrypoints=web,websecure"
       - "traefik.http.routers.website.tls.certresolver=letsencrypt"
       - "traefik.http.services.website.loadbalancer.server.port=80"
-      - "traefik.http.routers.website-redirect.rule=Host(`yourdomain.com`, `www.yourdomain.com`)"
+      - "traefik.http.routers.website-redirect.rule=Host(`jonahjacobsen.com`, `www.jonahjacobsen.com`)"
       - "traefik.http.routers.website-redirect.entrypoints=web"
       - "traefik.http.routers.website-redirect.middlewares=website-redirect"
       - "traefik.http.middlewares.website-redirect.redirectscheme.scheme=https"
